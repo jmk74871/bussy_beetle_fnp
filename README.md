@@ -1,4 +1,5 @@
 # Folder Prefix CLI Tool
+
 This is a command-line tool for adding or removing a folder name as a prefix to file names. It supports both processing files in the top-level folder and recursively in subfolders.
 
 How to Use the Executable
