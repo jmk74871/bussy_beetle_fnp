@@ -72,7 +72,7 @@ fn ask_traverse_subfolders() -> io::Result<bool> {
     }
 }
 
-fn process_directory(folder_path: &Path, folder_name: &str, action: &str, traverse_subfolders: bool) -> io::Result<()> {
+fn process_directory(folder_path: &Path, current_folder_name: &str, action: &str, traverse_subfolders: bool) -> io::Result<()> {
     for entry in fs::read_dir(folder_path)? {
         let entry = entry?;
         let path = entry.path();
@@ -80,13 +80,21 @@ fn process_directory(folder_path: &Path, folder_name: &str, action: &str, traver
         if path.is_file() {
             // Process file based on the chosen action
             match action {
-                "add" => add_prefix(&entry, folder_name)?,
-                "remove" => remove_prefix(&entry, folder_name)?,
+                "add" => add_prefix(&entry, current_folder_name)?,
+                "remove" => remove_prefix(&entry, current_folder_name)?,
                 _ => eprintln!("Invalid action selected."),
             }
         } else if traverse_subfolders && path.is_dir() {
-            // Recursively traverse subfolders if the user opted in
-            process_directory(&path, folder_name, action, traverse_subfolders)?;
+            // Extract the subfolder name
+            let subfolder_name = path.file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("");
+
+            // Combine current folder and subfolder name for the new prefix
+            let new_prefix = subfolder_name;
+
+            // Recursively traverse subfolders with updated prefix
+            process_directory(&path, &new_prefix, action, traverse_subfolders)?;
         }
     }
     Ok(())
